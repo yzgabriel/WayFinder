@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Totem — Colégio Horizonte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF;
+  --surface:#F6F7FA;
+  --surface-2:#FFFFFF;
+  --border:#E7E9EF;
+  --text:#14171F;
+  --muted:#71778C;
+  --accent:#2F5DFB;
+  --accent-soft:rgba(47,93,251,0.09);
+  --accessible:#17A673;
+  --alert:#E2472B;
+  --g-ensino:#2F5DFB;
+  --g-servicos:#8B5CF6;
+  --g-alimentacao:#F2994A;
+  --g-convivencia:#17A673;
+  --g-necessidades:#71778C;
+  --g-outros:#B7BCC9;
+  --shadow: 0 8px 28px rgba(20,23,31,0.07);
+  --shadow-sm: 0 2px 8px rgba(20,23,31,0.05);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--bg); color:var(--text); font-family:'Inter',sans-serif;
+  height:100vh; overflow:hidden; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent;
+}
+button{font-family:inherit; cursor:pointer;}
+::selection{ background:var(--accent); color:#fff; }
+
+/* ---------- HEADER ---------- */
+header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 28px; border-bottom:1px solid var(--border); flex-shrink:0;
+}
+.brand{ display:flex; align-items:center; gap:14px; }
+.brand .mark{
+  width:42px; height:42px; border-radius:12px;
+  background: var(--accent);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Space Grotesk'; font-weight:700; color:#fff; font-size:16px;
+}
+.brand h1{ font-family:'Space Grotesk'; font-size:20px; font-weight:600; }
+.brand span{ display:block; font-size:12px; color:var(--muted); margin-top:1px; }
+.head-right{ display:flex; align-items:center; gap:18px; }
+#clock{ font-family:'IBM Plex Mono'; font-size:14px; color:var(--muted); }
+
+.a11y-toggle{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 14px; border-radius:100px; border:1px solid var(--border);
+  background:var(--surface); font-size:13px; font-weight:600; color:var(--text);
+}
+.switch{ width:38px; height:22px; border-radius:100px; background:#D8DBE3; position:relative; transition:background .15s ease; }
+.switch::after{ content:''; position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; top:3px; left:3px; transition:left .15s ease; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.a11y-toggle.on .switch{ background:var(--accessible); }
+.a11y-toggle.on .switch::after{ left:19px; }
+
+/* ---------- FLOOR TABS ---------- */
+.floors{ display:flex; gap:8px; padding:14px 28px; border-bottom:1px solid var(--border); flex-shrink:0; align-items:center; }
+.floor-btn{
+  font-family:'Space Grotesk'; font-weight:600; font-size:14px;
+  background:var(--surface); color:var(--muted); border:1px solid var(--border);
+  padding:10px 20px; border-radius:100px; transition:all .15s ease;
+}
+.floor-btn:hover{ color:var(--text); }
+.floor-btn.active{ background:var(--text); color:#fff; border-color:var(--text); }
+.floor-btn.needed{ box-shadow:0 0 0 3px var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+.floor-hint{ font-size:12.5px; color:var(--accent); font-weight:600; margin-left:6px; }
+
+/* ---------- MAIN ---------- */
+main{ flex:1; display:flex; min-height:0; }
+
+.sidebar{
+  width:480px; flex-shrink:0; display:flex; flex-direction:column; min-height:0;
+  border-right:1px solid var(--border); padding:20px 20px 0 20px;
+}
+h2.eyebrow{ font-family:'Space Grotesk'; font-size:22px; font-weight:600; margin-bottom:14px; }
+
+.search{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:15px 16px; flex-shrink:0;
+}
+.search input{ background:transparent; border:none; outline:none; font-size:15px; width:100%; color:var(--text); }
+.search input::placeholder{ color:var(--muted); }
+.search svg{ flex-shrink:0; color:var(--muted); }
+
+.groups{ overflow-y:auto; flex:1; margin-top:16px; padding-bottom:14px; margin-right:-10px; padding-right:10px; }
+.groups::-webkit-scrollbar{ width:6px; }
+.groups::-webkit-scrollbar-thumb{ background:var(--border); border-radius:10px; }
+
+.chip-row{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:4px; }
+.chip{
+  font-size:13px; font-weight:500; padding:9px 14px; border-radius:100px; border:1px solid var(--border);
+  color:var(--muted); display:flex; align-items:center; gap:7px; transition:all .15s ease; background:#fff;
+}
+.chip .dot{ width:8px; height:8px; border-radius:50%; }
+.chip.active{ color:#fff; border-color:transparent; }
+
+.list-title{ font-family:'Space Grotesk'; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin:18px 0 10px 2px; }
+
+/* place-card grid — inspired by the totem preview's card list */
+.place-grid{ display:grid; grid-template-columns:1fr 1fr; gap:11px; }
+.place-card{
+  text-align:left; background:#fff; border:1px solid var(--border); border-radius:17px;
+  padding:15px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.place-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
+.place-card.selected{ border-color:var(--accent); background:var(--accent-soft); }
+.p-top{ display:flex; align-items:flex-start; justify-content:space-between; }
+.p-badge-sm{ width:32px; height:32px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; }
+.p-badge-sm svg{ width:16px; height:16px; }
+.p-arrow{ color:var(--muted); font-size:14px; line-height:1; margin-top:4px; }
+.place-card strong{ display:block; margin-top:12px; font-family:'Space Grotesk'; font-size:13.5px; font-weight:600; line-height:1.3; }
+.place-card .p-card-meta{ display:block; font-size:11px; color:var(--muted); margin-top:3px; }
+.empty{ color:var(--muted); font-size:13px; padding:16px 4px; grid-column:1/-1; }
+
+/* ---------- MAP ---------- */
+.map-wrap{ flex:1; position:relative; padding:20px; display:flex; align-items:center; justify-content:center; min-width:0; }
+.map-frame{ width:100%; height:100%; background:var(--surface); border:1px solid var(--border); border-radius:20px; position:relative; overflow:hidden; }
+svg#floorplan{ width:100%; height:100%; display:block; }
+
+.room{ cursor:pointer; }
+.room rect{ stroke-width:1.6; transition:filter .15s ease, stroke-width .15s ease; }
+.room:hover rect{ filter:brightness(0.97); }
+.room.dim{ opacity:.24; }
+.room.selected rect{ stroke-width:3; }
+.room .badge-num{ font-family:'IBM Plex Mono'; font-weight:600; font-size:12px; }
+.room-label{ font-family:'Inter'; font-weight:500; font-size:10.5px; fill:var(--text); pointer-events:none; }
+.room-sub{ font-family:'Inter'; font-size:8.5px; fill:var(--muted); pointer-events:none; }
+
+.corridor{ fill:#FFFFFF; stroke:var(--border); stroke-width:1; }
+.corridor-label{ font-family:'Space Grotesk'; font-size:10.5px; fill:var(--muted); letter-spacing:.14em; }
+
+.pin-pulse{ transform-origin:center; animation:pulse 2.2s ease-out infinite; }
+.pin-pulse2{ transform-origin:center; animation:pulse 2.2s ease-out infinite; animation-delay:.7s; }
+@keyframes pulse{ 0%{ r:6; opacity:.5; } 100%{ r:36; opacity:0; } }
+.you-label{ font-family:'Space Grotesk'; font-weight:700; font-size:11.5px; fill:var(--accent); letter-spacing:.03em; }
+.you-label-bg{ fill:#fff; }
+
+.route-line{ fill:none; stroke:var(--accent); stroke-width:4; stroke-linecap:round; stroke-dasharray:9 9; animation:dash 1s linear infinite; }
+.route-line.accessible{ stroke:var(--accessible); }
+@keyframes dash{ to{ stroke-dashoffset:-36; } }
+.route-endpoint{ fill:var(--accent); }
+.route-endpoint.accessible{ fill:var(--accessible); }
+
+.legend{ position:absolute; left:36px; bottom:26px; display:flex; gap:14px; background:rgba(255,255,255,.92); backdrop-filter:blur(4px); padding:10px 14px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+.legend div{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); font-weight:500; }
+.legend span{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+
+/* ---------- RIGHT PANEL ---------- */
+.panel{ width:360px; flex-shrink:0; border-left:1px solid var(--border); display:flex; flex-direction:column; min-height:0; }
+.panel-empty{ flex:1; display:flex; align-items:center; justify-content:center; padding:30px; text-align:center; color:var(--muted); font-size:14px; line-height:1.6; }
+.panel-empty svg{ display:block; margin:0 auto 14px auto; opacity:.4; }
+
+.panel-content{ padding:26px 24px; flex:1; overflow-y:auto; }
+.p-badge{ width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:#fff; margin-bottom:16px; }
+.p-badge svg{ width:26px; height:26px; }
+.p-name{ font-family:'Space Grotesk'; font-size:24px; font-weight:600; line-height:1.2; }
+.p-meta{ font-size:13.5px; color:var(--muted); margin-top:6px; font-weight:500; }
+.p-desc{ font-size:13.5px; color:var(--text); line-height:1.6; margin-top:16px; }
+
+.p-stats{ display:flex; gap:10px; margin-top:20px; }
+.p-stat{ flex:1; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; }
+.p-stat b{ display:block; font-family:'Space Grotesk'; font-size:19px; }
+.p-stat span{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+
+.btn{ width:100%; padding:16px; border-radius:14px; border:none; font-family:'Space Grotesk'; font-weight:600; font-size:15px; text-align:center; margin-top:12px; transition:transform .08s ease, opacity .15s ease; }
+.btn:active{ transform:scale(0.98); }
+.btn-primary{ background:var(--accent); color:#fff; }
+.btn-primary.accessible{ background:var(--accessible); }
+.btn-secondary{ background:var(--surface); color:var(--text); border:1px solid var(--border); }
+
+.alert-box{ margin-top:16px; display:flex; gap:10px; padding:12px 14px; border-radius:12px; background:rgba(226,71,43,0.08); border:1px solid rgba(226,71,43,0.25); }
+.alert-box svg{ flex-shrink:0; color:var(--alert); margin-top:1px; }
+.alert-box span{ font-size:12px; color:#8a2f1c; line-height:1.5; }
+
+/* ---------- ROUTE STEPS PANEL ---------- */
+.route-head{ padding:22px 24px 16px 24px; border-bottom:1px solid var(--border); }
+.route-head .r-from-to{ font-size:12px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+.route-head h2{ font-family:'Space Grotesk'; font-size:21px; font-weight:600; margin-top:6px; }
+.route-stats{ display:flex; gap:10px; margin-top:14px; }
+
+.steps{ flex:1; overflow-y:auto; padding:18px 24px; }
+.step{ display:flex; gap:14px; padding-bottom:22px; position:relative; }
+.step::before{ content:''; position:absolute; left:13px; top:30px; bottom:0; width:2px; background:var(--border); }
+.step:last-child::before{ display:none; }
+.step .s-num{ width:28px; height:28px; border-radius:50%; background:var(--surface); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-weight:600; font-size:12px; flex-shrink:0; z-index:1; color:var(--muted); }
+.step.current .s-num{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.step.done .s-num{ background:var(--text); border-color:var(--text); color:#fff; }
+.step p{ font-size:14px; line-height:1.5; padding-top:4px; }
+.step.current p{ font-weight:600; }
+
+.route-nav{ padding:16px 24px 22px 24px; border-top:1px solid var(--border); display:flex; gap:10px; }
+.nav-btn{ flex:1; padding:14px; border-radius:12px; font-weight:600; font-size:14px; border:1px solid var(--border); background:#fff; }
+.nav-btn:disabled{ opacity:.35; }
+.nav-btn.primary{ background:var(--text); color:#fff; border-color:var(--text); }
+
+/* ---------- IDLE OVERLAY ---------- */
+.idle-overlay{
+  position:fixed; inset:0; background:rgba(20,23,31,0.55); backdrop-filter:blur(3px);
+  display:flex; align-items:center; justify-content:center; z-index:50;
+  opacity:0; pointer-events:none; transition:opacity .2s ease;
+}
+.idle-overlay.show{ opacity:1; pointer-events:all; }
+.idle-card{ background:#fff; border-radius:22px; padding:40px 44px; text-align:center; box-shadow:var(--shadow); max-width:380px; }
+.idle-card h3{ font-family:'Space Grotesk'; font-size:20px; margin-bottom:8px; }
+.idle-card p{ color:var(--muted); font-size:14px; margin-bottom:22px; }
+.idle-card .count{ font-family:'Space Grotesk'; font-size:44px; font-weight:700; color:var(--accent); margin-bottom:22px; }
+.idle-card button{ width:100%; padding:15px; border-radius:14px; border:none; background:var(--text); color:#fff; font-weight:600; font-size:15px; }
+
+@media (max-width:1200px){
+  .place-grid{ grid-template-columns:1fr; }
+}
+@media (max-width:1024px){
+  .panel{ width:320px; } .sidebar{ width:340px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">CH</div>
+    <div>
+      <h1>Encontre seu destino</h1>
+      <span>Colégio Horizonte — totem de orientação</span>
+    </div>
+  </div>
+  <div class="head-right">
+    <div class="a11y-toggle" id="a11yToggle">
+      <span>Rota com vídeo</span>
+      <div class="switch"></div>
+    </div>
+    <div id="clock">--:--:--</div>
+  </div>
+</header>
+
+<div class="floors" id="floorTabs"></div>
+
+<main>
+  <div class="sidebar" id="sidebarPane">
+    <div class="search">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="searchInput" type="text" placeholder="Digite uma sala, ambiente ou setor...">
+    </div>
+    <div class="groups" id="groups"></div>
+  </div>
+
+  <div class="map-wrap">
+    <div class="map-frame">
+      <svg id="floorplan" viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel"></div>
+</main>
+
+<div class="idle-overlay" id="idleOverlay">
+  <div class="idle-card">
+    <h3>Ainda está aí?</h3>
+    <p id="idleText">Retornando ao início em <span id="idleCount">10</span> segundos...</p>
+    <div class="count" id="idleBig">10</div>
+    <button id="idleContinue">Continuar</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   ICONS
+========================================================= */
+const ICON = {
+  sala: `<path d="M6 3v18M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6M14 12h.01" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+  laboratorio: `<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M8 15h8" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  secretaria: `<path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8ZM8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  coordenacao: `<path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8ZM8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  diretoria: `<path d="M4 8h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8ZM8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  professores: `<circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="17" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M3 20c0-3 2.7-5 6-5s6 2 6 5M15.5 15.2c2.4.3 4 1.9 4 4.3" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+  refeitorio: `<path d="M6 3v8M4 3v5a2 2 0 0 0 4 0V3M6 11v10M15 3c-1.5 0-2.5 1.5-2.5 4s1 4 2.5 4v10" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  cantina: `<path d="M4 8h16l-1.5 11a1 1 0 0 1-1 .9H6.5a1 1 0 0 1-1-.9L4 8ZM8 8a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  cozinha: `<circle cx="12" cy="13" r="7" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M8 3.5c0 1.5-1 2-1 3.5M12 3.5c0 1.5-1 2-1 3.5M16 3.5c0 1.5-1 2-1 3.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+  biblioteca: `<path d="M4 5.5S6 4 9 4s5 1.5 5 1.5v14S12 18 9 18s-5 1.5-5 1.5v-14ZM14 5.5S16 4 19 4s1 1.5 1 1.5v14s-2-1.5-5-1.5-1 1.5-1 1.5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  patio: `<path d="M12 3v6M12 9c-3 0-5 2-5 5v7M12 9c3 0 5 2 5 5v7M7 10l-2-1M17 10l2-1" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/>`,
+  quadra: `<rect x="3" y="6" width="18" height="12" rx="1.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M12 6v12M3 12h18M7 6v5M17 6v5" stroke="currentColor" stroke-width="1.6" fill="none"/>`,
+  auditorio: `<path d="M4 19V9l8-5 8 5v10M4 19h16M9 19v-6h6v6" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  banheiro: `<circle cx="8" cy="5" r="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M8 8c-2 0-3 1.3-3 3v3h6v-3c0-1.7-1-3-3-3ZM5 14v6M11 14v6" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round"/><circle cx="17" cy="5" r="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M15 20l0-6.5M19 20l0-6.5M14.3 13.5h5.4L19 9h-4l-.7 4.5Z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/>`,
+  elevador: `<rect x="5" y="3" width="14" height="18" rx="1.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M10 8l-2 2 2 2M14 8l2 2-2 2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 16h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>`,
+  escada: `<path d="M4 20h4v-4h4v-4h4v-4h4" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  entrada: `<path d="M15 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h9M15 3v18M15 3l4 2v14l-4 2M11 12h.01" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  saida: `<path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4M16 17l4-5-4-5M20 12H9" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+  recepcao: `<path d="M3 20v-3a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v3M3 20h18M8 14V9a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+};
+function svgIcon(cat, size){ return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">${ICON[cat]||ICON.sala}</svg>`; }
+
+/* =========================================================
+   CATEGORY / GROUP DEFINITIONS
+========================================================= */
+const GROUPS = [
+  { key:'ensino', label:'Ensino', color:'var(--g-ensino)', cats:['sala','laboratorio'] },
+  { key:'servicos', label:'Serviços', color:'var(--g-servicos)', cats:['secretaria','coordenacao','diretoria'] },
+  { key:'alimentacao', label:'Alimentação', color:'var(--g-alimentacao)', cats:['refeitorio','cantina'] },
+  { key:'convivencia', label:'Convivência', color:'var(--g-convivencia)', cats:['biblioteca','patio','quadra','auditorio'] },
+  { key:'necessidades', label:'Necessidades', color:'var(--g-necessidades)', cats:['banheiro','elevador'] },
+];
+const CAT_LABEL = {
+  sala:'Salas de aula', laboratorio:'Laboratórios', secretaria:'Secretaria', coordenacao:'Coordenação',
+  diretoria:'Diretoria', refeitorio:'Refeitório', cantina:'Cantina', biblioteca:'Biblioteca', patio:'Pátio',
+  quadra:'Quadra', auditorio:'Auditório', banheiro:'Banheiros', elevador:'Elevadores', escada:'Escadas',
+  entrada:'Entrada', saida:'Saída de emergência', professores:'Sala dos professores', cozinha:'Cozinha', recepcao:'Recepção'
+};
+function colorFor(cat){
+  for(const g of GROUPS) if(g.cats.includes(cat)) return g.color;
+  return 'var(--g-outros)';
+}
+
+/* =========================================================
+   SCHOOL DATA — 3 floors
+========================================================= */
+const CORRIDOR = { x:40, y:270, w:920, h:60 };
+const CORE = { elevX:800, elevY:140, stairX:800, stairY:340, w:160, h:90 };
+const YOU_ARE_HERE = { x:265, y:300 };
+
+function core(floor, n1, n2){
+  return [
+    {n:n1, name:'Elevador', cat:'elevador', floor, block:'Bloco A', x:CORE.elevX,y:CORE.elevY,w:CORE.w,h:CORE.h, desc:'Elevador com acesso a todos os andares. Capacidade para 6 pessoas.'},
+    {n:n2, name:'Escada', cat:'escada', floor, block:'Bloco A', x:CORE.stairX,y:CORE.stairY,w:CORE.w,h:CORE.h, desc:'Escada principal, conecta todos os andares.'},
+  ];
+}
+
+const FLOORS = [
+  { id:0, name:'Térreo', hasYouAreHere:true, rooms:[
+    {n:'ENT', name:'Entrada Principal', cat:'entrada', floor:0, block:'Bloco A', x:40,y:60,w:140,h:195, desc:'Acesso principal do colégio, com portaria e catraca de entrada.'},
+    {n:'REC', name:'Recepção', cat:'recepcao', floor:0, block:'Bloco A', x:190,y:60,w:130,h:195, desc:'Balcão de atendimento a visitantes, pais e responsáveis.'},
+    {n:'SEC', name:'Secretaria', cat:'secretaria', floor:0, block:'Bloco A', x:330,y:60,w:110,h:195, desc:'Documentos, matrículas, boletins e declarações.'},
+    {n:'COO', name:'Coordenação', cat:'coordenacao', floor:0, block:'Bloco A', x:450,y:60,w:110,h:195, desc:'Atendimento pedagógico a alunos, pais e professores.'},
+    {n:'DIR', name:'Diretoria', cat:'diretoria', floor:0, block:'Bloco A', x:570,y:60,w:110,h:195, desc:'Gabinete da direção geral do colégio.'},
+    {n:'PROF', name:'Sala dos Professores', cat:'professores', floor:0, block:'Bloco A', x:690,y:60,w:90,h:195, desc:'Espaço de descanso e preparo de aulas para o corpo docente.'},
+    ...core(0,'EL0','ES0'),
+    {n:'REF', name:'Refeitório', cat:'refeitorio', floor:0, block:'Bloco A', x:40,y:345,w:150,h:195, desc:'Refeições servidas aos alunos em período integral.'},
+    {n:'COZ', name:'Cozinha', cat:'cozinha', floor:0, block:'Bloco A', x:200,y:345,w:100,h:195, desc:'Preparo das refeições — acesso restrito à equipe.'},
+    {n:'CAN', name:'Cantina', cat:'cantina', floor:0, block:'Bloco A', x:310,y:345,w:100,h:195, desc:'Lanches e bebidas durante os intervalos.'},
+    {n:'BF0', name:'Banheiro Feminino', cat:'banheiro', floor:0, block:'Bloco A', x:420,y:345,w:110,h:195, desc:'Banheiro feminino térreo, com box acessível.'},
+    {n:'BM0', name:'Banheiro Masculino', cat:'banheiro', floor:0, block:'Bloco A', x:540,y:345,w:110,h:195, desc:'Banheiro masculino térreo, com box acessível.'},
+    {n:'SAI0', name:'Saída de Emergência', cat:'saida', floor:0, block:'Bloco A', x:660,y:345,w:120,h:195, desc:'Rota de fuga sinalizada — abre diretamente para a rua.'},
+    {n:'PAT', name:'Pátio', cat:'patio', floor:0, block:'Área Externa', x:40,y:565,w:340,h:60, desc:'Área externa coberta para recreio e eventos.'},
+    {n:'QUA', name:'Quadra Esportiva', cat:'quadra', floor:0, block:'Área Externa', x:400,y:565,w:340,h:60, desc:'Quadra poliesportiva coberta, usada nas aulas de Educação Física.'},
+  ]},
+  { id:1, name:'1º Andar', hasYouAreHere:false, rooms:[
+    {n:'01', name:'Sala 01', cat:'sala', floor:1, block:'Bloco A', x:40,y:60,w:90,h:195, desc:'Sala de aula — turmas do Fundamental I.'},
+    {n:'02', name:'Sala 02', cat:'sala', floor:1, block:'Bloco A', x:140,y:60,w:90,h:195, desc:'Sala de aula — turmas do Fundamental I.'},
+    {n:'03', name:'Sala 03', cat:'sala', floor:1, block:'Bloco A', x:240,y:60,w:90,h:195, desc:'Sala de aula — turmas do Fundamental I.'},
+    {n:'04', name:'Sala 04', cat:'sala', floor:1, block:'Bloco A', x:340,y:60,w:90,h:195, desc:'Sala de aula — turmas do Fundamental I.'},
+    {n:'05', name:'Sala 05', cat:'sala', floor:1, block:'Bloco A', x:440,y:60,w:90,h:195, desc:'Sala de aula — turmas do Fundamental II.'},
+    {n:'06', name:'Sala 06', cat:'sala', floor:1, block:'Bloco A', x:540,y:60,w:90,h:195, desc:'Sala de aula — turmas do Fundamental II.'},
+    {n:'07', name:'Sala 07', cat:'sala', floor:1, block:'Bloco A', x:640,y:60,w:90,h:195, desc:'Sala de aula — turmas do Fundamental II.'},
+    ...core(1,'EL1','ES1'),
+    {n:'08', name:'Sala 08', cat:'sala', floor:1, block:'Bloco A', x:40,y:345,w:90,h:195, desc:'Sala de aula — turmas do Fundamental II.'},
+    {n:'09', name:'Sala 09', cat:'sala', floor:1, block:'Bloco A', x:140,y:345,w:90,h:195, desc:'Sala de aula — turmas do Fundamental II.'},
+    {n:'10', name:'Sala 10', cat:'sala', floor:1, block:'Bloco A', x:240,y:345,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'11', name:'Sala 11', cat:'sala', floor:1, block:'Bloco A', x:340,y:345,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'12', name:'Sala 12', cat:'sala', floor:1, block:'Bloco A', x:440,y:345,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'LI', name:'Laboratório de Informática', cat:'laboratorio', floor:1, block:'Bloco A', x:540,y:345,w:110,h:195, desc:'30 estações de trabalho com acesso à internet.'},
+    {n:'LC', name:'Laboratório de Ciências', cat:'laboratorio', floor:1, block:'Bloco A', x:660,y:345,w:110,h:195, desc:'Bancadas para experimentos de Física, Química e Biologia.'},
+    {n:'BIB', name:'Biblioteca', cat:'biblioteca', floor:1, block:'Bloco A', x:40,y:565,w:340,h:60, desc:'Acervo com mais de 8 mil títulos e sala de leitura silenciosa.'},
+    {n:'B1', name:'Banheiro', cat:'banheiro', floor:1, block:'Bloco A', x:400,y:565,w:200,h:60, desc:'Banheiros feminino, masculino e acessível.'},
+    {n:'SAI1', name:'Saída de Emergência', cat:'saida', floor:1, block:'Bloco A', x:620,y:565,w:180,h:60, desc:'Rota de fuga sinalizada pela escada externa.'},
+  ]},
+  { id:2, name:'2º Andar', hasYouAreHere:false, rooms:[
+    {n:'13', name:'Sala 13', cat:'sala', floor:2, block:'Bloco A', x:40,y:60,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'14', name:'Sala 14', cat:'sala', floor:2, block:'Bloco A', x:140,y:60,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'15', name:'Sala 15', cat:'sala', floor:2, block:'Bloco A', x:240,y:60,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'16', name:'Sala 16', cat:'sala', floor:2, block:'Bloco A', x:340,y:60,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'17', name:'Sala 17', cat:'sala', floor:2, block:'Bloco A', x:440,y:60,w:90,h:195, desc:'Sala de aula — turmas do Ensino Médio.'},
+    {n:'18', name:'Sala 18', cat:'sala', floor:2, block:'Bloco A', x:540,y:60,w:90,h:195, desc:'Sala multiuso — projetos e monitorias.'},
+    {n:'19', name:'Sala 19', cat:'sala', floor:2, block:'Bloco A', x:640,y:60,w:90,h:195, desc:'Sala multiuso — projetos e monitorias.'},
+    ...core(2,'EL2','ES2'),
+    {n:'20', name:'Sala 20', cat:'sala', floor:2, block:'Bloco A', x:40,y:345,w:90,h:195, desc:'Sala de aula — turmas do Pré-Vestibular.'},
+    {n:'21', name:'Sala 21', cat:'sala', floor:2, block:'Bloco A', x:140,y:345,w:90,h:195, desc:'Sala de aula — turmas do Pré-Vestibular.'},
+    {n:'22', name:'Sala 22', cat:'sala', floor:2, block:'Bloco A', x:240,y:345,w:90,h:195, desc:'Sala de aula — turmas do Pré-Vestibular.'},
+    {n:'LA', name:'Laboratório de Artes', cat:'laboratorio', floor:2, block:'Bloco A', x:340,y:345,w:110,h:195, desc:'Ateliê equipado para artes visuais e cerâmica.'},
+    {n:'AUD', name:'Auditório', cat:'auditorio', floor:2, block:'Bloco A', x:470,y:345,w:180,h:195, desc:'Capacidade para 180 pessoas — palestras, formaturas e eventos.'},
+    {n:'B2', name:'Banheiro', cat:'banheiro', floor:2, block:'Bloco A', x:670,y:345,w:110,h:195, desc:'Banheiros feminino, masculino e acessível.'},
+    {n:'SAI2', name:'Saída de Emergência', cat:'saida', floor:2, block:'Bloco A', x:40,y:565,w:200,h:60, desc:'Rota de fuga sinalizada pela escada externa.'},
+  ]},
+];
+const FLOOR_NAME = f => FLOORS.find(fl=>fl.id===f).name;
+
+/* =========================================================
+   STATE
+========================================================= */
+let currentFloor = 0;
+let activeCat = null;
+let selectedRoom = null;
+let searchTerm = '';
+let videoMode = false;
+let routeMode = false;
+let steps = [];
+let stepIndex = 0;
+let lastInteraction = Date.now();
+let idleTimer = null, countdownTimer = null;
+
+const IDLE_BEFORE_WARN = 25000; // ms of no interaction before warning
+const WARN_SECONDS = 10;
+
+/* =========================================================
+   CLOCK
+========================================================= */
+function tickClock(){
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(tickClock,1000); tickClock();
+
+/* =========================================================
+   IDLE / AUTO-RETURN
+========================================================= */
+function markInteraction(){
+  lastInteraction = Date.now();
+  hideIdleOverlay();
+}
+function hideIdleOverlay(){
+  document.getElementById('idleOverlay').classList.remove('show');
+  if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; }
+}
+function checkIdle(){
+  if(Date.now() - lastInteraction >= IDLE_BEFORE_WARN && !countdownTimer){
+    startCountdown();
+  }
+}
+function startCountdown(){
+  let n = WARN_SECONDS;
+  const overlay = document.getElementById('idleOverlay');
+  const big = document.getElementById('idleBig');
+  const count = document.getElementById('idleCount');
+  big.textContent = n; count.textContent = n;
+  overlay.classList.add('show');
+  countdownTimer = setInterval(()=>{
+    n--;
+    if(n<=0){
+      clearInterval(countdownTimer); countdownTimer=null;
+      resetToHome();
+      overlay.classList.remove('show');
+      return;
+    }
+    big.textContent = n; count.textContent = n;
+  },1000);
+}
+document.getElementById('idleContinue').onclick = markInteraction;
+setInterval(checkIdle, 1000);
+['click','touchstart','input'].forEach(ev=> document.addEventListener(ev, markInteraction));
+
+function resetToHome(){
+  currentFloor = 0; activeCat=null; selectedRoom=null; searchTerm=''; routeMode=false; steps=[]; stepIndex=0;
+  document.getElementById('searchInput').value='';
+  renderAll();
+}
+
+/* =========================================================
+   ACCESSIBLE TOGGLE
+========================================================= */
+document.getElementById('a11yToggle').onclick = ()=>{
+  videoMode = !videoMode;
+  document.getElementById('a11yToggle').classList.toggle('on', videoMode);
+  if(routeMode && selectedRoom){ buildRoute(selectedRoom); renderPanel(); }
+  renderMap();
+};
+
+/* =========================================================
+   FLOOR TABS
+========================================================= */
+function renderFloorTabs(){
+  const wrap = document.getElementById('floorTabs');
+  wrap.innerHTML = '';
+  FLOORS.forEach(f=>{
+    const btn = document.createElement('button');
+    let cls = 'floor-btn' + (f.id===currentFloor ? ' active':'');
+    if(routeMode && selectedRoom && selectedRoom.floor===f.id && f.id!==currentFloor) cls += ' needed';
+    btn.className = cls;
+    btn.textContent = f.name;
+    btn.onclick = ()=>{ currentFloor = f.id; renderMap(); renderFloorTabs(); };
+    wrap.appendChild(btn);
+  });
+  if(routeMode && selectedRoom && selectedRoom.floor !== currentFloor){
+    const hint = document.createElement('span');
+    hint.className = 'floor-hint';
+    hint.textContent = '→ Continue no ' + FLOOR_NAME(selectedRoom.floor);
+    wrap.appendChild(hint);
+  }
+}
+
+/* =========================================================
+   FILTER GROUPS (SIDEBAR)
+========================================================= */
+function renderGroups(){
+  const wrap = document.getElementById('groups');
+  wrap.innerHTML = '';
+
+  // flat chip row — "Todos" + one chip per category (style borrowed from the totem preview)
+  const row = document.createElement('div'); row.className='chip-row';
+  const allChip = document.createElement('div');
+  allChip.className = 'chip' + (activeCat===null ? ' active':'');
+  if(activeCat===null){ allChip.style.background = 'var(--text)'; }
+  allChip.textContent = 'Todos';
+  allChip.onclick = ()=>{ activeCat = null; exitRoute(); renderAll(); };
+  row.appendChild(allChip);
+
+  GROUPS.forEach(g=>{
+    g.cats.forEach(cat=>{
+      const chip = document.createElement('div');
+      chip.className = 'chip' + (activeCat===cat ? ' active':'');
+      if(activeCat===cat){ chip.style.background = g.color; }
+      chip.innerHTML = `<span class="dot" style="background:${g.color}"></span>${CAT_LABEL[cat]}`;
+      chip.onclick = ()=>{ activeCat = (activeCat===cat ? null : cat); exitRoute(); renderAll(); };
+      row.appendChild(chip);
+    });
+  });
+  wrap.appendChild(row);
+
+  const listTitle = document.createElement('div');
+  listTitle.className = 'list-title';
+  listTitle.textContent = 'Ambientes — ' + currentFloorData().name;
+  wrap.appendChild(listTitle);
+
+  // card grid — layout borrowed from the totem preview's place list
+  const grid = document.createElement('div'); grid.className='place-grid';
+  const rooms = currentFloorData().rooms.filter(roomVisible);
+  if(rooms.length===0){
+    grid.innerHTML = `<div class="empty">Nada encontrado. Tente outro termo, categoria ou andar.</div>`;
+  } else {
+    rooms.forEach(r=>{
+      const card = document.createElement('button');
+      card.className = 'place-card' + (selectedRoom===r ? ' selected':'');
+      card.innerHTML = `
+        <div class="p-top">
+          <div class="p-badge-sm" style="background:${colorFor(r.cat)}">${svgIcon(r.cat,16)}</div>
+          <span class="p-arrow">→</span>
+        </div>
+        <strong>${r.name}</strong>
+        <span class="p-card-meta">${CAT_LABEL[r.cat]||r.block} · ${r.block}</span>`;
+      card.onclick = ()=> selectRoom(r);
+      grid.appendChild(card);
+    });
+  }
+  wrap.appendChild(grid);
+}
+
+/* =========================================================
+   HELPERS
+========================================================= */
+function currentFloorData(){ return FLOORS[currentFloor]; }
+function roomVisible(r){
+  const catOk = !activeCat || r.cat===activeCat;
+  const term = searchTerm.trim().toLowerCase();
+  const searchOk = !term || r.name.toLowerCase().includes(term) || (r.n||'').toLowerCase().includes(term);
+  return catOk && searchOk;
+}
+
+document.getElementById('searchInput').addEventListener('input', e=>{
+  searchTerm = e.target.value;
+  if(searchTerm.trim()){
+    // jump to first match's floor for visibility
+    const term = searchTerm.trim().toLowerCase();
+    for(const f of FLOORS){
+      const hit = f.rooms.find(r=> r.name.toLowerCase().includes(term) || (r.n||'').toLowerCase().includes(term));
+      if(hit){ currentFloor = f.id; break; }
+    }
+  }
+  exitRoute();
+  renderAll();
+});
+
+/* =========================================================
+   MAP RENDER
+========================================================= */
+const ns = "http://www.w3.org/2000/svg";
+function el(tag, attrs){ const e=document.createElementNS(ns,tag); for(const k in attrs) e.setAttribute(k,attrs[k]); return e; }
+
+function renderLegend(){
+  const wrap = document.getElementById('legend');
+  wrap.innerHTML = '';
+  GROUPS.forEach(g=>{
+    const d = document.createElement('div');
+    d.innerHTML = `<span style="background:${g.color}"></span>${g.label}`;
+    wrap.appendChild(d);
+  });
+}
+
+function renderMap(){
+  const svg = document.getElementById('floorplan');
+  svg.innerHTML = '';
+  const floor = currentFloorData();
+
+  svg.appendChild(el('rect',{x:CORRIDOR.x,y:CORRIDOR.y,width:CORRIDOR.w,height:CORRIDOR.h,class:'corridor',rx:4}));
+  const cl = el('text',{x:CORRIDOR.x+CORRIDOR.w/2,y:CORRIDOR.y+CORRIDOR.h/2+4,class:'corridor-label','text-anchor':'middle'});
+  cl.textContent = 'CORREDOR PRINCIPAL';
+  svg.appendChild(cl);
+
+  floor.rooms.forEach(r=>{
+    const visible = roomVisible(r);
+    const g = el('g',{class:'room'+(visible?'':' dim')+(selectedRoom===r?' selected':'')});
+    g.onclick = ()=> selectRoom(r);
+    const color = colorFor(r.cat);
+    const rect = el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,rx:12,fill:'#FFFFFF',stroke:color});
+    g.appendChild(rect);
+
+    // small icon tile top-left
+    const iconBg = el('rect',{x:r.x+10,y:r.y+10,width:26,height:26,rx:7,fill:color});
+    g.appendChild(iconBg);
+    const iconFO = el('foreignObject',{x:r.x+13,y:r.y+13,width:20,height:20});
+    const div = document.createElement('div');
+    div.style.color = '#fff'; div.innerHTML = svgIcon(r.cat,20);
+    iconFO.appendChild(div);
+    g.appendChild(iconFO);
+
+    const label = el('text',{x:r.x+10,y:r.y+r.h-14,class:'room-label'});
+    label.textContent = r.name.length>16 ? r.name.slice(0,15)+'…' : r.name;
+    g.appendChild(label);
+
+    if(r.n && !/^\d+$/.test('')){
+      const sub = el('text',{x:r.x+10,y:r.y+r.h-4,class:'room-sub'});
+      sub.textContent = r.block;
+      g.appendChild(sub);
+    }
+
+    svg.appendChild(g);
+  });
+
+  // route
+  if(routeMode && selectedRoom){
+    drawRouteLeg(svg, floor);
+  }
+
+  // pin
+  if(floor.hasYouAreHere){
+    const pg = el('g');
+    pg.appendChild(el('circle',{cx:YOU_ARE_HERE.x,cy:YOU_ARE_HERE.y,r:6,fill:'var(--accent)',class:'pin-pulse','fill-opacity':'0.45'}));
+    pg.appendChild(el('circle',{cx:YOU_ARE_HERE.x,cy:YOU_ARE_HERE.y,r:6,fill:'var(--accent)',class:'pin-pulse2','fill-opacity':'0.45'}));
+    pg.appendChild(el('circle',{cx:YOU_ARE_HERE.x,cy:YOU_ARE_HERE.y,r:8,fill:'var(--accent)',stroke:'#fff','stroke-width':'2.5'}));
+    const bg = el('rect',{x:YOU_ARE_HERE.x-56,y:YOU_ARE_HERE.y-34,width:112,height:18,rx:4,class:'you-label-bg'});
+    pg.appendChild(bg);
+    const label = el('text',{x:YOU_ARE_HERE.x,y:YOU_ARE_HERE.y-20,class:'you-label','text-anchor':'middle'});
+    label.textContent = 'VOCÊ ESTÁ AQUI';
+    pg.appendChild(label);
+    svg.appendChild(pg);
+  }
+}
+
+function roomCenter(r){ return {x:r.x+r.w/2, y:r.y+r.h/2}; }
+function coreAnchor(){ return {x:CORE.elevX, y:CORE.elevY+CORE.h/2}; }
+
+function drawRouteLeg(svg, floor){
+  const routeClass = 'route-line';
+  const dotClass = 'route-endpoint';
+  const midY = CORRIDOR.y + CORRIDOR.h/2;
+  let pathData = null;
+
+  if(selectedRoom.floor === floor.id && floor.hasYouAreHere && selectedRoom.floor===0){
+    // same-floor direct leg from pin
+    const t = roomCenter(selectedRoom);
+    pathData = `M ${YOU_ARE_HERE.x} ${YOU_ARE_HERE.y} L ${t.x} ${midY} L ${t.x} ${t.y}`;
+    svg.appendChild(el('path',{d:pathData,class:routeClass,id:'routePath'}));
+    svg.appendChild(el('circle',{cx:t.x,cy:t.y,r:7,class:dotClass,stroke:'#fff','stroke-width':'2.5'}));
+  } else if(selectedRoom.floor !== 0 && floor.id === 0){
+    // leg 1: pin -> core, on térreo
+    const core = coreAnchor();
+    pathData = `M ${YOU_ARE_HERE.x} ${YOU_ARE_HERE.y} L ${core.x} ${midY} L ${core.x} ${core.y}`;
+    svg.appendChild(el('path',{d:pathData,class:routeClass,id:'routePath'}));
+    svg.appendChild(el('circle',{cx:core.x,cy:core.y,r:7,class:dotClass,stroke:'#fff','stroke-width':'2.5'}));
+  } else if(selectedRoom.floor !== 0 && floor.id === selectedRoom.floor){
+    // leg 2: core -> destination room, on destination floor
+    const core = coreAnchor();
+    const t = roomCenter(selectedRoom);
+    pathData = `M ${core.x} ${core.y} L ${core.x} ${midY} L ${t.x} ${midY} L ${t.x} ${t.y}`;
+    svg.appendChild(el('path',{d:pathData,class:routeClass,id:'routePath'}));
+    svg.appendChild(el('circle',{cx:t.x,cy:t.y,r:7,class:dotClass,stroke:'#fff','stroke-width':'2.5'}));
+  }
+
+  if(pathData && videoMode){
+    addRouteWalker(svg);
+  }
+}
+
+/* animated walking figure that travels along the drawn route path */
+function addRouteWalker(svg){
+  const holder = el('g',{class:'route-walker'});
+  holder.appendChild(el('circle',{cx:'0',cy:'0',r:'8',fill:'var(--accent)',opacity:'0.28',class:'pin-pulse'}));
+  holder.appendChild(el('circle',{cx:'0',cy:'0',r:'15',fill:'#fff',stroke:'var(--accent)','stroke-width':'2.5'}));
+  const label = el('text',{x:'0',y:'1','text-anchor':'middle','dominant-baseline':'central','font-size':'16'});
+  label.textContent = '🚶';
+  holder.appendChild(label);
+
+  const anim = el('animateMotion',{dur:'2.6s',repeatCount:'indefinite',calcMode:'linear'});
+  const mpath = el('mpath',{});
+  mpath.setAttribute('href','#routePath');
+  mpath.setAttributeNS('http://www.w3.org/1999/xlink','href','#routePath');
+  anim.appendChild(mpath);
+  holder.appendChild(anim);
+
+  svg.appendChild(holder);
+}
+
+/* =========================================================
+   DISTANCE / TIME ESTIMATE
+========================================================= */
+const PX_TO_M = 0.10;
+function estimate(room){
+  let px = 0;
+  const midY = CORRIDOR.y + CORRIDOR.h/2;
+  if(room.floor===0){
+    const t = roomCenter(room);
+    px = Math.abs(t.x-YOU_ARE_HERE.x) + Math.abs(midY-YOU_ARE_HERE.y) + Math.abs(t.y-midY);
+  } else {
+    const core = coreAnchor();
+    px = Math.abs(core.x-YOU_ARE_HERE.x) + Math.abs(midY-YOU_ARE_HERE.y);
+    const t = roomCenter(room);
+    px += Math.abs(t.x-core.x) + Math.abs(t.y-midY);
+    px += 60; // vertical circulation allowance per floor change
+  }
+  const meters = Math.max(20, Math.round(px*PX_TO_M/10)*10);
+  const mins = Math.max(1, Math.round(meters/70));
+  return { meters, mins };
+}
+
+/* =========================================================
+   RIGHT PANEL — DETAIL
+========================================================= */
+function renderPanel(){
+  const panel = document.getElementById('panel');
+  if(routeMode && selectedRoom){ renderRoutePanel(panel); return; }
+
+  if(!selectedRoom){
+    panel.innerHTML = `<div class="panel-empty">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 12 2a7 7 0 0 1 7 7.5C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.4"/></svg>
+      Toque em um ambiente no mapa ou na lista ao lado para ver informações e o trajeto até ele.
+    </div>`;
+    return;
+  }
+
+  const r = selectedRoom;
+  const est = estimate(r);
+  const changesFloor = r.floor !== 0;
+
+  panel.innerHTML = `
+    <div class="panel-content">
+      <div class="p-badge" style="background:${colorFor(r.cat)}">${svgIcon(r.cat,26)}</div>
+      <div class="p-name">${r.name}</div>
+      <div class="p-meta">${r.block} · ${FLOOR_NAME(r.floor)}</div>
+      <div class="p-desc">${r.desc}</div>
+      <div class="p-stats">
+        <div class="p-stat"><b>${est.meters} m</b><span>Distância</span></div>
+        <div class="p-stat"><b>≈ ${est.mins} min</b><span>A pé</span></div>
+      </div>
+      ${changesFloor ? `<div class="alert-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <span>Este ambiente fica no ${FLOOR_NAME(r.floor)}. Será necessário usar o elevador ou a escada.</span>
+        </div>` : ``}
+      <button class="btn btn-primary${videoMode?' accessible':''}" id="btnRoute">Visualizar trajeto</button>
+      <button class="btn btn-secondary" id="btnBack">Voltar ao mapa</button>
+    </div>
+  `;
+  document.getElementById('btnRoute').onclick = ()=> startRoute(r);
+  document.getElementById('btnBack').onclick = ()=> { selectedRoom=null; renderAll(); };
+}
+
+/* =========================================================
+   ROUTE PANEL (STEP BY STEP)
+========================================================= */
+function buildRoute(room){
+  const est = estimate(room);
+  const list = [];
+  if(room.floor === 0){
+    list.push({floor:0, text:`Saia da recepção e siga pelo corredor principal até ${room.name}.`});
+  } else {
+    list.push({floor:0, text:`A partir da recepção, siga pelo corredor principal até a área de circulação.`});
+    list.push({floor:0, text:`Suba pela escada ou elevador até o ${FLOOR_NAME(room.floor)}.`});
+    list.push({floor:room.floor, text:`Ao chegar, siga pelo corredor até ${room.name}.`});
+  }
+  list.push({floor:room.floor, text:`${room.name} estará à sua frente.`});
+  steps = list;
+  stepIndex = 0;
+  return est;
+}
+
+function startRoute(room){
+  selectedRoom = room;
+  routeMode = true;
+  buildRoute(room);
+  currentFloor = 0; // always start the visual walk-through from the totem's floor
+  renderAll();
+}
+function exitRoute(){ routeMode = false; steps=[]; stepIndex=0; }
+
+function goStep(delta){
+  stepIndex = Math.min(steps.length-1, Math.max(0, stepIndex+delta));
+  currentFloor = steps[stepIndex].floor;
+  renderMap(); renderFloorTabs(); renderPanel();
+}
+
+function renderRoutePanel(panel){
+  const r = selectedRoom;
+  const est = estimate(r);
+  panel.innerHTML = `
+    <div class="route-head">
+      <div class="r-from-to">Você está aqui &nbsp;→&nbsp; ${r.name}</div>
+      <h2>${r.name}</h2>
+      <div class="route-stats">
+        <div class="p-stat"><b>${est.meters} m</b><span>Distância</span></div>
+        <div class="p-stat"><b>≈ ${est.mins} min</b><span>A pé</span></div>
+      </div>
+    </div>
+    <div class="steps" id="stepsWrap"></div>
+    <div class="route-nav">
+      <button class="nav-btn" id="stepPrev">Anterior</button>
+      <button class="nav-btn primary" id="stepNext">Próximo</button>
+    </div>
+    <div style="padding:0 24px 22px 24px;">
+      <button class="btn btn-secondary" id="btnEndRoute">Voltar ao mapa</button>
+    </div>
+  `;
+  const stepsWrap = document.getElementById('stepsWrap');
+  steps.forEach((s,i)=>{
+    const d = document.createElement('div');
+    d.className = 'step' + (i===stepIndex?' current':'') + (i<stepIndex?' done':'');
+    d.innerHTML = `<div class="s-num">${i+1}</div><p>${s.text}</p>`;
+    stepsWrap.appendChild(d);
+  });
+  document.getElementById('stepPrev').disabled = stepIndex===0;
+  document.getElementById('stepPrev').onclick = ()=> goStep(-1);
+  document.getElementById('stepNext').disabled = stepIndex===steps.length-1;
+  document.getElementById('stepNext').textContent = stepIndex===steps.length-1 ? 'Chegou ✓' : 'Próximo';
+  document.getElementById('stepNext').onclick = ()=>{ if(stepIndex<steps.length-1) goStep(1); };
+  document.getElementById('btnEndRoute').onclick = ()=>{ exitRoute(); renderAll(); };
+}
+
+/* =========================================================
+   SELECT / RENDER ALL
+========================================================= */
+function selectRoom(r){
+  selectedRoom = (selectedRoom===r) ? null : r;
+  routeMode = false; steps=[]; stepIndex=0;
+  renderAll();
+}
+
+function renderAll(){
+  renderFloorTabs();
+  renderGroups();
+  renderMap();
+  renderPanel();
+  renderLegend();
+}
+
+renderAll();
+</script>
+</body>
+</html>
