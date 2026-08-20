@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Totem — Colégio Horizonte</title>
+<title>Totem — Colégio Tadeu Thiago</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -11,6 +11,8 @@
   --bg:#FFFFFF;
   --surface:#F6F7FA;
   --surface-2:#FFFFFF;
+  --card-bg:#FFFFFF;
+  --corridor-fill:#EEF0F4;
   --border:#E7E9EF;
   --text:#14171F;
   --muted:#71778C;
@@ -18,6 +20,10 @@
   --accent-soft:rgba(47,93,251,0.09);
   --accessible:#17A673;
   --alert:#E2472B;
+  --alert-text:#8a2f1c;
+  --ink:#14171F;
+  --on-ink:#FFFFFF;
+  --legend-bg:rgba(255,255,255,.92);
   --g-ensino:#2F5DFB;
   --g-servicos:#8B5CF6;
   --g-alimentacao:#F2994A;
@@ -27,15 +33,51 @@
   --shadow: 0 8px 28px rgba(20,23,31,0.07);
   --shadow-sm: 0 2px 8px rgba(20,23,31,0.05);
 }
+
+/* ---------- DARK THEME (estilo Google Maps "modo noturno") ---------- */
+html[data-theme="dark"]{
+  --bg:#1A1D23;
+  --surface:#20242C;
+  --surface-2:#262B34;
+  --card-bg:#262B34;
+  --corridor-fill:#1E222A;
+  --border:#363C48;
+  --text:#E7E9EF;
+  --muted:#8B93A7;
+  --accent:#7FA0FF;
+  --accent-soft:rgba(127,160,255,0.16);
+  --accessible:#33D6A6;
+  --alert:#FF7A63;
+  --alert-text:#FFC9BC;
+  --ink:#EDEFF4;
+  --on-ink:#14171F;
+  --legend-bg:rgba(38,43,52,.92);
+  --g-ensino:#7FA0FF;
+  --g-servicos:#B79CFF;
+  --g-alimentacao:#FFB067;
+  --g-convivencia:#33D6A6;
+  --g-necessidades:#9AA1B4;
+  --g-outros:#5B616F;
+  --shadow: 0 8px 28px rgba(0,0,0,0.45);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.35);
+}
+
 *{box-sizing:border-box; margin:0; padding:0;}
 html,body{height:100%;}
 body{
   background:var(--bg); color:var(--text); font-family:'Inter',sans-serif;
-  height:100vh; overflow:hidden; display:flex; flex-direction:column;
+  height:100vh; height:100dvh; overflow:hidden; display:flex; flex-direction:column;
   -webkit-tap-highlight-color:transparent;
 }
 button{font-family:inherit; cursor:pointer;}
 ::selection{ background:var(--accent); color:#fff; }
+
+/* transição suave entre temas, igual à do Google Maps */
+body, header, .floors, .sidebar, .map-frame, .panel, .search, .chip, .place-card,
+.floor-btn, .p-stat, .btn-secondary, .idle-card, .nav-btn, .legend, .a11y-toggle,
+.theme-toggle, svg#floorplan, .room rect, .corridor, .you-label-bg{
+  transition: background-color .25s ease, border-color .25s ease, color .25s ease, fill .25s ease, stroke .25s ease;
+}
 
 /* ---------- HEADER ---------- */
 header{
@@ -47,7 +89,7 @@ header{
   width:42px; height:42px; border-radius:12px;
   background: var(--accent);
   display:flex; align-items:center; justify-content:center;
-  font-family:'Space Grotesk'; font-weight:700; color:#fff; font-size:16px;
+  font-family:'Space Grotesk'; font-weight:700; color:#fff; font-size:13.5px; letter-spacing:-.02em;
 }
 .brand h1{ font-family:'Space Grotesk'; font-size:20px; font-weight:600; }
 .brand span{ display:block; font-size:12px; color:var(--muted); margin-top:1px; }
@@ -64,6 +106,17 @@ header{
 .a11y-toggle.on .switch{ background:var(--accessible); }
 .a11y-toggle.on .switch::after{ left:19px; }
 
+.theme-toggle{
+  width:38px; height:38px; border-radius:100px; border:1px solid var(--border);
+  background:var(--surface); color:var(--text); display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.theme-toggle:hover{ border-color:var(--muted); }
+.theme-toggle svg{ width:18px; height:18px; }
+.theme-toggle .icon-moon{ display:none; }
+html[data-theme="dark"] .theme-toggle .icon-sun{ display:none; }
+html[data-theme="dark"] .theme-toggle .icon-moon{ display:block; }
+
 /* ---------- FLOOR TABS ---------- */
 .floors{ display:flex; gap:8px; padding:14px 28px; border-bottom:1px solid var(--border); flex-shrink:0; align-items:center; }
 .floor-btn{
@@ -72,7 +125,7 @@ header{
   padding:10px 20px; border-radius:100px; transition:all .15s ease;
 }
 .floor-btn:hover{ color:var(--text); }
-.floor-btn.active{ background:var(--text); color:#fff; border-color:var(--text); }
+.floor-btn.active{ background:var(--ink); color:var(--on-ink); border-color:var(--ink); }
 .floor-btn.needed{ box-shadow:0 0 0 3px var(--accent-soft); border-color:var(--accent); color:var(--accent); }
 .floor-hint{ font-size:12.5px; color:var(--accent); font-weight:600; margin-left:6px; }
 
@@ -101,18 +154,20 @@ h2.eyebrow{ font-family:'Space Grotesk'; font-size:22px; font-weight:600; margin
 .chip-row{ display:flex; flex-wrap:wrap; gap:7px; margin-bottom:4px; }
 .chip{
   font-size:13px; font-weight:500; padding:9px 14px; border-radius:100px; border:1px solid var(--border);
-  color:var(--muted); display:flex; align-items:center; gap:7px; transition:all .15s ease; background:#fff;
+  color:var(--muted); display:flex; align-items:center; gap:7px; transition:all .15s ease; background:var(--card-bg);
 }
 .chip .dot{ width:8px; height:8px; border-radius:50%; }
 .chip.active{ color:#fff; border-color:transparent; }
+.chip.active.ink{ color:var(--on-ink); }
 
 .list-title{ font-family:'Space Grotesk'; font-size:11px; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin:18px 0 10px 2px; }
 
 /* place-card grid — inspired by the totem preview's card list */
 .place-grid{ display:grid; grid-template-columns:1fr 1fr; gap:11px; }
 .place-card{
-  text-align:left; background:#fff; border:1px solid var(--border); border-radius:17px;
+  text-align:left; background:var(--card-bg); border:1px solid var(--border); border-radius:17px;
   padding:15px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  color:var(--text);
 }
 .place-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-sm); }
 .place-card.selected{ border-color:var(--accent); background:var(--accent-soft); }
@@ -138,22 +193,34 @@ svg#floorplan{ width:100%; height:100%; display:block; }
 .room-label{ font-family:'Inter'; font-weight:500; font-size:10.5px; fill:var(--text); pointer-events:none; }
 .room-sub{ font-family:'Inter'; font-size:8.5px; fill:var(--muted); pointer-events:none; }
 
-.corridor{ fill:#FFFFFF; stroke:var(--border); stroke-width:1; }
+.corridor{ fill:var(--corridor-fill); stroke:var(--border); stroke-width:1; }
 .corridor-label{ font-family:'Space Grotesk'; font-size:10.5px; fill:var(--muted); letter-spacing:.14em; }
 
 .pin-pulse{ transform-origin:center; animation:pulse 2.2s ease-out infinite; }
 .pin-pulse2{ transform-origin:center; animation:pulse 2.2s ease-out infinite; animation-delay:.7s; }
 @keyframes pulse{ 0%{ r:6; opacity:.5; } 100%{ r:36; opacity:0; } }
 .you-label{ font-family:'Space Grotesk'; font-weight:700; font-size:11.5px; fill:var(--accent); letter-spacing:.03em; }
-.you-label-bg{ fill:#fff; }
+.you-label-bg{ fill:var(--card-bg); }
 
 .route-line{ fill:none; stroke:var(--accent); stroke-width:4; stroke-linecap:round; stroke-dasharray:9 9; animation:dash 1s linear infinite; }
 .route-line.accessible{ stroke:var(--accessible); }
+/* variante usada durante a reprodução em vídeo: traço sólido que se desenha
+   progressivamente (sem "marcha" infinita), no ritmo real da caminhada */
+.route-line-video{ fill:none; stroke:var(--accent); stroke-width:4.5; stroke-linecap:round; stroke-linejoin:round; }
+.route-line-video.accessible{ stroke:var(--accessible); }
 @keyframes dash{ to{ stroke-dashoffset:-36; } }
 .route-endpoint{ fill:var(--accent); }
 .route-endpoint.accessible{ fill:var(--accessible); }
 
-.legend{ position:absolute; left:36px; bottom:26px; display:flex; gap:14px; background:rgba(255,255,255,.92); backdrop-filter:blur(4px); padding:10px 14px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow-sm); }
+.video-toast{
+  position:absolute; top:18px; left:50%; transform:translateX(-50%) translateY(-6px);
+  background:var(--ink); color:var(--on-ink); font-family:'Space Grotesk'; font-weight:600; font-size:13px;
+  padding:10px 20px; border-radius:100px; box-shadow:var(--shadow-sm);
+  opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease; z-index:6; white-space:nowrap;
+}
+.video-toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+.legend{ position:absolute; left:36px; bottom:26px; display:flex; gap:14px; background:var(--legend-bg); backdrop-filter:blur(4px); padding:10px 14px; border-radius:12px; border:1px solid var(--border); box-shadow:var(--shadow-sm); }
 .legend div{ display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted); font-weight:500; }
 .legend span{ width:9px; height:9px; border-radius:50%; display:inline-block; }
 
@@ -182,7 +249,7 @@ svg#floorplan{ width:100%; height:100%; display:block; }
 
 .alert-box{ margin-top:16px; display:flex; gap:10px; padding:12px 14px; border-radius:12px; background:rgba(226,71,43,0.08); border:1px solid rgba(226,71,43,0.25); }
 .alert-box svg{ flex-shrink:0; color:var(--alert); margin-top:1px; }
-.alert-box span{ font-size:12px; color:#8a2f1c; line-height:1.5; }
+.alert-box span{ font-size:12px; color:var(--alert-text); line-height:1.5; }
 
 /* ---------- ROUTE STEPS PANEL ---------- */
 .route-head{ padding:22px 24px 16px 24px; border-bottom:1px solid var(--border); }
@@ -196,14 +263,14 @@ svg#floorplan{ width:100%; height:100%; display:block; }
 .step:last-child::before{ display:none; }
 .step .s-num{ width:28px; height:28px; border-radius:50%; background:var(--surface); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono'; font-weight:600; font-size:12px; flex-shrink:0; z-index:1; color:var(--muted); }
 .step.current .s-num{ background:var(--accent); border-color:var(--accent); color:#fff; }
-.step.done .s-num{ background:var(--text); border-color:var(--text); color:#fff; }
+.step.done .s-num{ background:var(--ink); border-color:var(--ink); color:var(--on-ink); }
 .step p{ font-size:14px; line-height:1.5; padding-top:4px; }
 .step.current p{ font-weight:600; }
 
 .route-nav{ padding:16px 24px 22px 24px; border-top:1px solid var(--border); display:flex; gap:10px; }
-.nav-btn{ flex:1; padding:14px; border-radius:12px; font-weight:600; font-size:14px; border:1px solid var(--border); background:#fff; }
+.nav-btn{ flex:1; padding:14px; border-radius:12px; font-weight:600; font-size:14px; border:1px solid var(--border); background:var(--card-bg); color:var(--text); }
 .nav-btn:disabled{ opacity:.35; }
-.nav-btn.primary{ background:var(--text); color:#fff; border-color:var(--text); }
+.nav-btn.primary{ background:var(--ink); color:var(--on-ink); border-color:var(--ink); }
 
 /* ---------- IDLE OVERLAY ---------- */
 .idle-overlay{
@@ -212,17 +279,118 @@ svg#floorplan{ width:100%; height:100%; display:block; }
   opacity:0; pointer-events:none; transition:opacity .2s ease;
 }
 .idle-overlay.show{ opacity:1; pointer-events:all; }
-.idle-card{ background:#fff; border-radius:22px; padding:40px 44px; text-align:center; box-shadow:var(--shadow); max-width:380px; }
-.idle-card h3{ font-family:'Space Grotesk'; font-size:20px; margin-bottom:8px; }
-.idle-card p{ color:var(--muted); font-size:14px; margin-bottom:22px; }
-.idle-card .count{ font-family:'Space Grotesk'; font-size:44px; font-weight:700; color:var(--accent); margin-bottom:22px; }
-.idle-card button{ width:100%; padding:15px; border-radius:14px; border:none; background:var(--text); color:#fff; font-weight:600; font-size:15px; }
+.idle-card{ background:var(--card-bg); border-radius:22px; padding:44px 44px; text-align:center; box-shadow:var(--shadow); max-width:380px; cursor:pointer; }
+.idle-card h3{ font-family:'Space Grotesk'; font-size:21px; margin-bottom:10px; }
+.idle-card p{ color:var(--muted); font-size:14px; line-height:1.55; }
+.idle-icon-circle{
+  width:60px; height:60px; border-radius:50%; background:var(--accent);
+  display:flex; align-items:center; justify-content:center; color:#fff;
+  margin:0 auto 20px auto; position:relative;
+}
+.idle-icon-circle svg{ position:relative; z-index:1; }
+.idle-icon-circle::before, .idle-icon-circle::after{
+  content:''; position:absolute; inset:0; border-radius:50%;
+  border:2px solid var(--accent); opacity:0; animation:idleRing 2.2s ease-out infinite;
+}
+.idle-icon-circle::after{ animation-delay:.7s; }
+@keyframes idleRing{
+  0%{ transform:scale(1); opacity:.55; }
+  100%{ transform:scale(1.9); opacity:0; }
+}
 
 @media (max-width:1200px){
   .place-grid{ grid-template-columns:1fr; }
 }
-@media (max-width:1024px){
+@media (max-width:1024px) and (min-width:881px){
   .panel{ width:320px; } .sidebar{ width:340px; }
+}
+
+/* ==========================================================
+   RESPONSIVE / MOBILE
+   Abaixo de 880px o layout de 3 colunas (lista | mapa | painel)
+   vira uma pilha: mapa em cima, lista logo abaixo (rolando junto
+   com a página), e o painel de detalhes/trajeto passa a ser uma
+   folha (bottom sheet) que sobe por cima ao selecionar um ambiente.
+========================================================== */
+.panel-backdrop{
+  position:fixed; inset:0; background:rgba(20,23,31,.5);
+  opacity:0; pointer-events:none; transition:opacity .25s ease; z-index:44;
+}
+.panel-backdrop.show{ opacity:1; pointer-events:all; }
+
+@media (min-width:881px){
+  .panel-backdrop{ display:none !important; }
+}
+
+@media (max-width:880px){
+
+  /* ---- header ---- */
+  header{ flex-wrap:wrap; row-gap:10px; padding:14px 16px; }
+  .brand{ gap:10px; }
+  .brand .mark{ width:36px; height:36px; font-size:12px; border-radius:10px; }
+  .brand h1{ font-size:16px; }
+  .brand span{ display:none; }
+  .head-right{ width:100%; justify-content:space-between; gap:10px; }
+  .a11y-toggle{ font-size:12px; padding:7px 12px; gap:8px; }
+  .a11y-toggle span{ white-space:nowrap; }
+  #clock{ font-size:12.5px; }
+
+  /* ---- floor tabs ---- */
+  .floors{ padding:10px 14px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  .floors::-webkit-scrollbar{ display:none; }
+  .floor-btn{ flex-shrink:0; padding:9px 16px; font-size:13px; }
+  .floor-hint{ flex-shrink:0; }
+
+  /* ---- main: stack map, then list; whole area scrolls ---- */
+  main{ flex-direction:column; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+
+  .map-wrap{
+    order:-1; /* o mapa vem antes da lista na pilha, mesmo vindo depois no HTML */
+    flex:none; width:100%; height:auto; aspect-ratio:1000/640; max-height:56vh;
+    padding:12px 14px 6px 14px;
+  }
+  .map-frame{ border-radius:16px; }
+
+  .legend{
+    left:10px; bottom:10px; right:10px; width:auto;
+    gap:8px; padding:7px 10px; flex-wrap:wrap; max-width:calc(100% - 20px);
+  }
+  .legend div{ font-size:9.5px; }
+  .legend span{ width:8px; height:8px; }
+
+  .sidebar{
+    width:100%; flex:none; min-height:0; height:auto;
+    border-right:none; padding:6px 14px 24px 14px;
+  }
+  h2.eyebrow{ font-size:19px; }
+  .search{ padding:13px 14px; border-radius:14px; }
+  .groups{ flex:none; overflow:visible; margin-top:12px; margin-right:0; padding-right:0; }
+
+  .place-grid{ grid-template-columns:1fr 1fr; gap:9px; }
+
+  /* ---- detail / route panel becomes a bottom sheet ---- */
+  .panel{
+    position:fixed; left:0; right:0; bottom:0; width:100%; flex-shrink:0;
+    max-height:82vh; border-left:none; border-top:1px solid var(--border);
+    border-radius:20px 20px 0 0; box-shadow:var(--shadow);
+    transform:translateY(105%); transition:transform .28s cubic-bezier(.32,.72,0,1);
+    z-index:45; overflow-y:auto;
+  }
+  .panel::before{
+    content:''; display:block; width:38px; height:4px; border-radius:3px;
+    background:var(--border); margin:10px auto 2px auto; flex-shrink:0;
+  }
+  .panel.open{ transform:translateY(0); }
+  .panel-empty{ display:none; } /* fechado por padrão: mapa e lista são a tela principal */
+
+  .p-name{ font-size:21px; }
+  .idle-card{ margin:0 20px; padding:30px 24px; max-width:none; }
+}
+
+@media (max-width:420px){
+  .place-grid{ grid-template-columns:1fr; }
+  .a11y-toggle span{ display:none; }
+  .a11y-toggle{ padding:8px; gap:0; }
 }
 </style>
 </head>
@@ -230,14 +398,18 @@ svg#floorplan{ width:100%; height:100%; display:block; }
 
 <header>
   <div class="brand">
-    <div class="mark">CH</div>
+    <div class="mark">CTT</div>
     <div>
       <h1>Encontre seu destino</h1>
-      <span>Colégio Horizonte — totem de orientação</span>
+      <span>Colégio Tadeu Thiago — totem de orientação</span>
     </div>
   </div>
   <div class="head-right">
-    <div class="a11y-toggle" id="a11yToggle">
+    <button class="theme-toggle" id="themeToggle" title="Alternar modo claro/escuro" aria-label="Alternar modo claro/escuro">
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.4M12 19.1v2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M20.6 15.3a8.7 8.7 0 0 1-10.9-11 8.9 8.9 0 1 0 10.9 11Z"/></svg>
+    </button>
+    <div class="a11y-toggle" id="a11yToggle" role="button" tabindex="0" aria-label="Alternar rota com vídeo">
       <span>Rota com vídeo</span>
       <div class="switch"></div>
     </div>
@@ -260,18 +432,21 @@ svg#floorplan{ width:100%; height:100%; display:block; }
     <div class="map-frame">
       <svg id="floorplan" viewBox="0 0 1000 640" xmlns="http://www.w3.org/2000/svg"></svg>
       <div class="legend" id="legend"></div>
+      <div class="video-toast" id="videoToast"></div>
     </div>
   </div>
 
   <div class="panel" id="panel"></div>
+  <div class="panel-backdrop" id="panelBackdrop"></div>
 </main>
 
 <div class="idle-overlay" id="idleOverlay">
   <div class="idle-card">
-    <h3>Ainda está aí?</h3>
-    <p id="idleText">Retornando ao início em <span id="idleCount">10</span> segundos...</p>
-    <div class="count" id="idleBig">10</div>
-    <button id="idleContinue">Continuar</button>
+    <div class="idle-icon-circle">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 12 2a7 7 0 0 1 7 7.5C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.4"/></svg>
+    </div>
+    <h3>Clique para utilizar o mapa</h3>
+    <p>Toque em qualquer lugar da tela para explorar o Colégio Tadeu Thiago.</p>
   </div>
 </div>
 
@@ -406,11 +581,12 @@ let videoMode = false;
 let routeMode = false;
 let steps = [];
 let stepIndex = 0;
+let videoPlaybackActive = false;
+let videoPlayToken = 0;
 let lastInteraction = Date.now();
-let idleTimer = null, countdownTimer = null;
+let idleShown = false;
 
-const IDLE_BEFORE_WARN = 25000; // ms of no interaction before warning
-const WARN_SECONDS = 10;
+const IDLE_BEFORE_ATTRACT = 20000; // ms sem interação até mostrar a tela de convite
 
 /* =========================================================
    CLOCK
@@ -422,57 +598,72 @@ function tickClock(){
 setInterval(tickClock,1000); tickClock();
 
 /* =========================================================
-   IDLE / AUTO-RETURN
+   IDLE / TELA DE CONVITE (ATTRACT SCREEN)
+   Após alguns segundos sem uso, o totem assume que ninguém está
+   usando, volta para a tela inicial e mostra um convite para
+   o próximo visitante tocar na tela.
 ========================================================= */
 function markInteraction(){
   lastInteraction = Date.now();
-  hideIdleOverlay();
+  if(idleShown) hideIdleOverlay();
 }
 function hideIdleOverlay(){
+  idleShown = false;
   document.getElementById('idleOverlay').classList.remove('show');
-  if(countdownTimer){ clearInterval(countdownTimer); countdownTimer=null; }
 }
 function checkIdle(){
-  if(Date.now() - lastInteraction >= IDLE_BEFORE_WARN && !countdownTimer){
-    startCountdown();
+  if(!idleShown && Date.now() - lastInteraction >= IDLE_BEFORE_ATTRACT){
+    showIdleOverlay();
   }
 }
-function startCountdown(){
-  let n = WARN_SECONDS;
-  const overlay = document.getElementById('idleOverlay');
-  const big = document.getElementById('idleBig');
-  const count = document.getElementById('idleCount');
-  big.textContent = n; count.textContent = n;
-  overlay.classList.add('show');
-  countdownTimer = setInterval(()=>{
-    n--;
-    if(n<=0){
-      clearInterval(countdownTimer); countdownTimer=null;
-      resetToHome();
-      overlay.classList.remove('show');
-      return;
-    }
-    big.textContent = n; count.textContent = n;
-  },1000);
+function showIdleOverlay(){
+  idleShown = true;
+  resetToHome();
+  document.getElementById('idleOverlay').classList.add('show');
 }
-document.getElementById('idleContinue').onclick = markInteraction;
 setInterval(checkIdle, 1000);
 ['click','touchstart','input'].forEach(ev=> document.addEventListener(ev, markInteraction));
 
 function resetToHome(){
+  videoPlayToken++; videoPlaybackActive = false;
   currentFloor = 0; activeCat=null; selectedRoom=null; searchTerm=''; routeMode=false; steps=[]; stepIndex=0;
   document.getElementById('searchInput').value='';
   renderAll();
 }
 
 /* =========================================================
+   THEME TOGGLE (claro / escuro, estilo Google Maps)
+========================================================= */
+let currentTheme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+document.documentElement.setAttribute('data-theme', currentTheme);
+
+document.getElementById('themeToggle').onclick = ()=>{
+  currentTheme = (currentTheme === 'light') ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+};
+
+/* =========================================================
    ACCESSIBLE TOGGLE
 ========================================================= */
+document.getElementById('a11yToggle').addEventListener('keydown', e=>{
+  if(e.key==='Enter' || e.key===' '){ e.preventDefault(); document.getElementById('a11yToggle').click(); }
+});
 document.getElementById('a11yToggle').onclick = ()=>{
   videoMode = !videoMode;
   document.getElementById('a11yToggle').classList.toggle('on', videoMode);
-  if(routeMode && selectedRoom){ buildRoute(selectedRoom); renderPanel(); }
-  renderMap();
+  if(routeMode && selectedRoom){
+    buildRoute(selectedRoom);
+    renderPanel();
+    videoPlayToken++;
+    if(videoMode){
+      videoPlaybackActive = true;
+      renderMap();
+      playVideoRoute(selectedRoom);
+    } else {
+      videoPlaybackActive = false;
+      renderMap();
+    }
+  }
 };
 
 /* =========================================================
@@ -487,7 +678,7 @@ function renderFloorTabs(){
     if(routeMode && selectedRoom && selectedRoom.floor===f.id && f.id!==currentFloor) cls += ' needed';
     btn.className = cls;
     btn.textContent = f.name;
-    btn.onclick = ()=>{ currentFloor = f.id; renderMap(); renderFloorTabs(); };
+    btn.onclick = ()=>{ if(videoPlaybackActive) return; currentFloor = f.id; renderMap(); renderFloorTabs(); renderGroups(); };
     wrap.appendChild(btn);
   });
   if(routeMode && selectedRoom && selectedRoom.floor !== currentFloor){
@@ -508,8 +699,8 @@ function renderGroups(){
   // flat chip row — "Todos" + one chip per category (style borrowed from the totem preview)
   const row = document.createElement('div'); row.className='chip-row';
   const allChip = document.createElement('div');
-  allChip.className = 'chip' + (activeCat===null ? ' active':'');
-  if(activeCat===null){ allChip.style.background = 'var(--text)'; }
+  allChip.className = 'chip' + (activeCat===null ? ' active ink':'');
+  if(activeCat===null){ allChip.style.background = 'var(--ink)'; }
   allChip.textContent = 'Todos';
   allChip.onclick = ()=>{ activeCat = null; exitRoute(); renderAll(); };
   row.appendChild(allChip);
@@ -610,7 +801,7 @@ function renderMap(){
     const g = el('g',{class:'room'+(visible?'':' dim')+(selectedRoom===r?' selected':'')});
     g.onclick = ()=> selectRoom(r);
     const color = colorFor(r.cat);
-    const rect = el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,rx:12,fill:'#FFFFFF',stroke:color});
+    const rect = el('rect',{x:r.x,y:r.y,width:r.w,height:r.h,rx:12,fill:'var(--card-bg)',stroke:color});
     g.appendChild(rect);
 
     // small icon tile top-left
@@ -645,7 +836,7 @@ function renderMap(){
     const pg = el('g');
     pg.appendChild(el('circle',{cx:YOU_ARE_HERE.x,cy:YOU_ARE_HERE.y,r:6,fill:'var(--accent)',class:'pin-pulse','fill-opacity':'0.45'}));
     pg.appendChild(el('circle',{cx:YOU_ARE_HERE.x,cy:YOU_ARE_HERE.y,r:6,fill:'var(--accent)',class:'pin-pulse2','fill-opacity':'0.45'}));
-    pg.appendChild(el('circle',{cx:YOU_ARE_HERE.x,cy:YOU_ARE_HERE.y,r:8,fill:'var(--accent)',stroke:'#fff','stroke-width':'2.5'}));
+    pg.appendChild(el('circle',{cx:YOU_ARE_HERE.x,cy:YOU_ARE_HERE.y,r:8,fill:'var(--accent)',stroke:'var(--card-bg)','stroke-width':'2.5'}));
     const bg = el('rect',{x:YOU_ARE_HERE.x-56,y:YOU_ARE_HERE.y-34,width:112,height:18,rx:4,class:'you-label-bg'});
     pg.appendChild(bg);
     const label = el('text',{x:YOU_ARE_HERE.x,y:YOU_ARE_HERE.y-20,class:'you-label','text-anchor':'middle'});
@@ -658,55 +849,143 @@ function renderMap(){
 function roomCenter(r){ return {x:r.x+r.w/2, y:r.y+r.h/2}; }
 function coreAnchor(){ return {x:CORE.elevX, y:CORE.elevY+CORE.h/2}; }
 
-function drawRouteLeg(svg, floor){
-  const routeClass = 'route-line';
-  const dotClass = 'route-endpoint';
+/* Calcula o trecho da rota (caminho + curvas) que pertence a um andar específico.
+   Reaproveitado tanto no traçado estático quanto na reprodução em vídeo. */
+function routeLegForFloor(room, floorId){
   const midY = CORRIDOR.y + CORRIDOR.h/2;
-  let pathData = null;
-
-  if(selectedRoom.floor === floor.id && floor.hasYouAreHere && selectedRoom.floor===0){
-    // same-floor direct leg from pin
-    const t = roomCenter(selectedRoom);
-    pathData = `M ${YOU_ARE_HERE.x} ${YOU_ARE_HERE.y} L ${t.x} ${midY} L ${t.x} ${t.y}`;
-    svg.appendChild(el('path',{d:pathData,class:routeClass,id:'routePath'}));
-    svg.appendChild(el('circle',{cx:t.x,cy:t.y,r:7,class:dotClass,stroke:'#fff','stroke-width':'2.5'}));
-  } else if(selectedRoom.floor !== 0 && floor.id === 0){
-    // leg 1: pin -> core, on térreo
-    const core = coreAnchor();
-    pathData = `M ${YOU_ARE_HERE.x} ${YOU_ARE_HERE.y} L ${core.x} ${midY} L ${core.x} ${core.y}`;
-    svg.appendChild(el('path',{d:pathData,class:routeClass,id:'routePath'}));
-    svg.appendChild(el('circle',{cx:core.x,cy:core.y,r:7,class:dotClass,stroke:'#fff','stroke-width':'2.5'}));
-  } else if(selectedRoom.floor !== 0 && floor.id === selectedRoom.floor){
-    // leg 2: core -> destination room, on destination floor
-    const core = coreAnchor();
-    const t = roomCenter(selectedRoom);
-    pathData = `M ${core.x} ${core.y} L ${core.x} ${midY} L ${t.x} ${midY} L ${t.x} ${t.y}`;
-    svg.appendChild(el('path',{d:pathData,class:routeClass,id:'routePath'}));
-    svg.appendChild(el('circle',{cx:t.x,cy:t.y,r:7,class:dotClass,stroke:'#fff','stroke-width':'2.5'}));
+  if(room.floor === floorId && floorId === 0){
+    const t = roomCenter(room);
+    return { pathData:`M ${YOU_ARE_HERE.x} ${YOU_ARE_HERE.y} L ${t.x} ${midY} L ${t.x} ${t.y}`, end:t, corners:[{x:t.x,y:midY}] };
   }
-
-  if(pathData && videoMode){
-    addRouteWalker(svg);
+  if(room.floor !== 0 && floorId === 0){
+    const core = coreAnchor();
+    return { pathData:`M ${YOU_ARE_HERE.x} ${YOU_ARE_HERE.y} L ${core.x} ${midY} L ${core.x} ${core.y}`, end:core, corners:[{x:core.x,y:midY}] };
   }
+  if(room.floor !== 0 && floorId === room.floor){
+    const core = coreAnchor();
+    const t = roomCenter(room);
+    return { pathData:`M ${core.x} ${core.y} L ${core.x} ${midY} L ${t.x} ${midY} L ${t.x} ${t.y}`, end:t, corners:[{x:core.x,y:midY},{x:t.x,y:midY}] };
+  }
+  return null;
+}
+function legsForRoom(room){ return room.floor === 0 ? [0] : [0, room.floor]; }
+
+/* Traçado estático (não animado) — usado quando não se está reproduzindo o vídeo da rota. */
+function drawRouteLeg(svg, floor){
+  if(videoPlaybackActive) return; // durante a reprodução, quem desenha é playVideoRoute
+  const leg = routeLegForFloor(selectedRoom, floor.id);
+  if(!leg) return;
+  const accessible = videoMode ? ' accessible' : '';
+  svg.appendChild(el('path',{d:leg.pathData, class:'route-line'+accessible, id:'routePath'}));
+  svg.appendChild(el('circle',{cx:leg.end.x,cy:leg.end.y,r:7,class:'route-endpoint'+accessible,stroke:'var(--card-bg)','stroke-width':'2.5'}));
 }
 
-/* animated walking figure that travels along the drawn route path */
-function addRouteWalker(svg){
+function walkerFigure(){
   const holder = el('g',{class:'route-walker'});
   holder.appendChild(el('circle',{cx:'0',cy:'0',r:'8',fill:'var(--accent)',opacity:'0.28',class:'pin-pulse'}));
-  holder.appendChild(el('circle',{cx:'0',cy:'0',r:'15',fill:'#fff',stroke:'var(--accent)','stroke-width':'2.5'}));
+  holder.appendChild(el('circle',{cx:'0',cy:'0',r:'15',fill:'var(--card-bg)',stroke:'var(--accent)','stroke-width':'2.5'}));
   const label = el('text',{x:'0',y:'1','text-anchor':'middle','dominant-baseline':'central','font-size':'16'});
   label.textContent = '🚶';
   holder.appendChild(label);
+  return holder;
+}
+function sleep(ms){ return new Promise(res=>setTimeout(res,ms)); }
+function showToast(text){
+  const t = document.getElementById('videoToast');
+  if(!t) return;
+  t.textContent = text;
+  t.classList.add('show');
+}
+function hideToast(){
+  const t = document.getElementById('videoToast');
+  if(t) t.classList.remove('show');
+}
 
-  const anim = el('animateMotion',{dur:'2.6s',repeatCount:'indefinite',calcMode:'linear'});
-  const mpath = el('mpath',{});
-  mpath.setAttribute('href','#routePath');
-  mpath.setAttributeNS('http://www.w3.org/1999/xlink','href','#routePath');
-  anim.appendChild(mpath);
-  holder.appendChild(anim);
+/* Anima um único trecho da rota: a linha se desenha progressivamente (no ritmo real
+   da distância, ~1,3 m/s) enquanto a figura caminha sobre ela — apenas uma passagem,
+   sem loop, para não distrair o usuário do totem. */
+function playLegAnimation(svg, leg, token, isFinal, room){
+  return new Promise(resolve=>{
+    const accessible = videoMode ? ' accessible' : '';
+    const path = el('path',{d:leg.pathData, class:'route-line-video'+accessible, id:'routePath'});
+    svg.appendChild(path);
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
 
-  svg.appendChild(holder);
+    // pontos de curva — pequenas marcações discretas nos cantos do trajeto
+    leg.corners.forEach(c=>{
+      svg.appendChild(el('circle',{cx:c.x,cy:c.y,r:3.5,fill:'var(--card-bg)',stroke: videoMode?'var(--accessible)':'var(--accent)','stroke-width':'2'}));
+    });
+
+    const PX_PER_SEC = 130; // ritmo confortável de caminhada para acompanhar na tela
+    const duration = Math.min(6000, Math.max(1100, (len/PX_PER_SEC)*1000));
+
+    const lineAnim = path.animate(
+      [{strokeDashoffset:len},{strokeDashoffset:0}],
+      {duration, easing:'linear', fill:'forwards'}
+    );
+
+    const walker = walkerFigure();
+    svg.appendChild(walker);
+    const anim = el('animateMotion',{dur:(duration/1000)+'s', repeatCount:'1', calcMode:'linear', fill:'freeze'});
+    const mpath = el('mpath',{});
+    mpath.setAttribute('href','#'+path.id);
+    mpath.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+path.id);
+    anim.appendChild(mpath);
+    walker.appendChild(anim);
+
+    lineAnim.onfinish = ()=>{
+      if(token!==videoPlayToken) return resolve();
+      svg.appendChild(el('circle',{cx:leg.end.x,cy:leg.end.y,r:7,class:'route-endpoint'+accessible,stroke:'var(--card-bg)','stroke-width':'2.5'}));
+      if(isFinal){
+        svg.appendChild(el('circle',{cx:leg.end.x,cy:leg.end.y,r:7,fill:videoMode?'var(--accessible)':'var(--accent)',class:'pin-pulse','fill-opacity':'0.4'}));
+        showToast('Você chegou — ' + room.name + ' 🎉');
+      }
+      setTimeout(resolve, 300);
+    };
+  });
+}
+
+/* Reproduz a rota inteira como um "vídeo": caminha no térreo, se necessário troca de
+   andar automaticamente (com aviso), e continua até o destino — sem exigir cliques
+   manuais nas abas de andar. */
+async function playVideoRoute(room){
+  const token = ++videoPlayToken;
+  videoPlaybackActive = true;
+  const floors = legsForRoom(room);
+
+  for(let i=0;i<floors.length;i++){
+    if(token!==videoPlayToken) return;
+    currentFloor = floors[i];
+    renderFloorTabs();
+    renderMap();
+    if(token!==videoPlayToken) return;
+
+    if(i===0){
+      showToast('Saindo de "Você está aqui" até ' + room.name);
+      await sleep(1100);
+    } else {
+      showToast('Trocando de andar — indo para o ' + FLOOR_NAME(currentFloor));
+      await sleep(1200);
+    }
+    if(token!==videoPlayToken) return;
+    hideToast();
+
+    const svg = document.getElementById('floorplan');
+    const leg = routeLegForFloor(room, currentFloor);
+    if(leg){
+      await playLegAnimation(svg, leg, token, i===floors.length-1, room);
+    }
+    if(token!==videoPlayToken) return;
+  }
+
+  if(token!==videoPlayToken) return;
+  await sleep(2200);
+  hideToast();
+  videoPlaybackActive = false;
+  renderFloorTabs();
+  renderPanel();
 }
 
 /* =========================================================
@@ -734,15 +1013,26 @@ function estimate(room){
 /* =========================================================
    RIGHT PANEL — DETAIL
 ========================================================= */
+function syncPanelSheet(){
+  // No mobile, o painel vira uma "folha" (bottom sheet) que só sobe quando
+  // há um ambiente selecionado — no desktop essas classes não têm efeito.
+  const panel = document.getElementById('panel');
+  const backdrop = document.getElementById('panelBackdrop');
+  const shouldOpen = !!selectedRoom;
+  panel.classList.toggle('open', shouldOpen);
+  if(backdrop) backdrop.classList.toggle('show', shouldOpen);
+}
+
 function renderPanel(){
   const panel = document.getElementById('panel');
-  if(routeMode && selectedRoom){ renderRoutePanel(panel); return; }
+  if(routeMode && selectedRoom){ renderRoutePanel(panel); syncPanelSheet(); return; }
 
   if(!selectedRoom){
     panel.innerHTML = `<div class="panel-empty">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 12 2a7 7 0 0 1 7 7.5C19 14.9 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.4"/></svg>
       Toque em um ambiente no mapa ou na lista ao lado para ver informações e o trajeto até ele.
     </div>`;
+    syncPanelSheet();
     return;
   }
 
@@ -770,6 +1060,7 @@ function renderPanel(){
   `;
   document.getElementById('btnRoute').onclick = ()=> startRoute(r);
   document.getElementById('btnBack').onclick = ()=> { selectedRoom=null; renderAll(); };
+  syncPanelSheet();
 }
 
 /* =========================================================
@@ -796,11 +1087,24 @@ function startRoute(room){
   routeMode = true;
   buildRoute(room);
   currentFloor = 0; // always start the visual walk-through from the totem's floor
-  renderAll();
+  videoPlayToken++;
+  if(videoMode){
+    videoPlaybackActive = true;
+    renderAll();
+    playVideoRoute(room);
+  } else {
+    videoPlaybackActive = false;
+    renderAll();
+  }
 }
-function exitRoute(){ routeMode = false; steps=[]; stepIndex=0; }
+function exitRoute(){
+  routeMode = false; steps=[]; stepIndex=0;
+  videoPlayToken++; videoPlaybackActive = false;
+  hideToast();
+}
 
 function goStep(delta){
+  if(videoPlaybackActive) return; // evita conflito com a reprodução automática em andamento
   stepIndex = Math.min(steps.length-1, Math.max(0, stepIndex+delta));
   currentFloor = steps[stepIndex].floor;
   renderMap(); renderFloorTabs(); renderPanel();
@@ -819,6 +1123,9 @@ function renderRoutePanel(panel){
       </div>
     </div>
     <div class="steps" id="stepsWrap"></div>
+    ${videoMode ? `<div style="padding:0 24px 8px 24px;">
+        <button class="nav-btn" id="btnReplay" ${videoPlaybackActive?'disabled':''}>↻ Assistir de novo</button>
+      </div>` : ``}
     <div class="route-nav">
       <button class="nav-btn" id="stepPrev">Anterior</button>
       <button class="nav-btn primary" id="stepNext">Próximo</button>
@@ -834,12 +1141,22 @@ function renderRoutePanel(panel){
     d.innerHTML = `<div class="s-num">${i+1}</div><p>${s.text}</p>`;
     stepsWrap.appendChild(d);
   });
-  document.getElementById('stepPrev').disabled = stepIndex===0;
+  document.getElementById('stepPrev').disabled = stepIndex===0 || videoPlaybackActive;
   document.getElementById('stepPrev').onclick = ()=> goStep(-1);
-  document.getElementById('stepNext').disabled = stepIndex===steps.length-1;
+  document.getElementById('stepNext').disabled = stepIndex===steps.length-1 || videoPlaybackActive;
   document.getElementById('stepNext').textContent = stepIndex===steps.length-1 ? 'Chegou ✓' : 'Próximo';
   document.getElementById('stepNext').onclick = ()=>{ if(stepIndex<steps.length-1) goStep(1); };
   document.getElementById('btnEndRoute').onclick = ()=>{ exitRoute(); renderAll(); };
+  const replayBtn = document.getElementById('btnReplay');
+  if(replayBtn){
+    replayBtn.onclick = ()=>{
+      videoPlayToken++;
+      videoPlaybackActive = true;
+      currentFloor = 0;
+      renderAll();
+      playVideoRoute(r);
+    };
+  }
 }
 
 /* =========================================================
@@ -848,6 +1165,8 @@ function renderRoutePanel(panel){
 function selectRoom(r){
   selectedRoom = (selectedRoom===r) ? null : r;
   routeMode = false; steps=[]; stepIndex=0;
+  videoPlayToken++; videoPlaybackActive = false;
+  hideToast();
   renderAll();
 }
 
@@ -858,6 +1177,13 @@ function renderAll(){
   renderPanel();
   renderLegend();
 }
+
+document.getElementById('panelBackdrop').addEventListener('click', ()=>{
+  if(videoPlaybackActive) return;
+  if(routeMode) exitRoute();
+  selectedRoom = null;
+  renderAll();
+});
 
 renderAll();
 </script>
