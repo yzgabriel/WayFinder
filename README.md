@@ -110,8 +110,9 @@ O projeto pode receber novas funcionalidades, melhorias de interface, ajustes no
 
 ## 👨‍💻 Autor
 
-Desenvolvido por **yzgabriel**.
+Desenvolvido pela equipe **WayFinder**.
 
 ---
 
 ⭐ Se este projeto foi útil ou interessante para você, considere deixar uma estrela no repositório.
+!!**gerado via claude para fins educacionais**!!
