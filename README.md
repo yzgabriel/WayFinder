@@ -1,5 +1,4 @@
-# WayFinder
-A WayFinder analisou por muitos anos como melhorar a experiência dos alunos e visitantes em uma universidade.
+
 # 🧭 WayFinder
 
 > Sistema interativo de orientação e navegação desenvolvido para facilitar a localização de ambientes dentro de uma universidade.
